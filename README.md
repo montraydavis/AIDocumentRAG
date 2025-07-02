@@ -6,6 +6,8 @@ A full-stack document management and AI chat application that enables users to u
 
 AIDocumentRAG provides an intelligent document management system with AI-powered chat capabilities. Users can upload documents, organize them in a searchable interface, and engage in natural language conversations about document contents using OpenAI's GPT models.
 
+![Screenshot_01](./Assets/01.png)
+
 ## Features
 
 ### Document Management
