@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "UI-API",
+    "Projects": [
+      {
+        "Path": "aidocumentrag.client\\aidocumentrag.client.esproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "AIDocumentRAG.Server\\AIDocumentRAG.Server.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

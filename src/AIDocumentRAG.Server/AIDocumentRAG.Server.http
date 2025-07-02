@@ -1,0 +1,46 @@
+@AIDocumentRAG.Server_HostAddress = http://localhost:5002
+
+### Get system status
+GET {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/status
+Accept: application/json
+
+###
+
+### Initialize file management system
+POST {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/initialize
+Content-Type: application/json
+
+{
+  "sourcePath": "C:\\Users\\montr\\Downloads\\AIDocumentRAG\\Data",
+  "destinationPath": "C:\\Users\\montr\\Downloads\\AIDocumentRAG\\Data_Copy"
+}
+
+###
+
+### Initialize with default destination (optional destinationPath)
+POST {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/initialize
+Content-Type: application/json
+
+{
+  "sourcePath": "C:\\Documents\\Source"
+}
+
+###
+
+### Get all files
+GET {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/files
+Accept: application/json
+
+###
+
+### Get specific file metadata
+GET {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/files/document.txt
+Accept: application/json
+
+###
+
+### Get file content
+GET {{AIDocumentRAG.Server_HostAddress}}/api/filemanagement/files/TradeConfirmationsPage.chatmode.md/content
+Accept: application/json
+
+###

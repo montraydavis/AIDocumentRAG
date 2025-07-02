@@ -1,0 +1,74 @@
+<div class="chat-container">
+  <div class="chat-header">
+    <h3>{{ displayTitle }}</h3>
+    <p class="subtitle">{{ displaySubtitle }}</p>
+
+    <div class="chat-actions" *ngIf="activeDocuments.length > 0">
+      <button class="btn btn-outline" (click)="clearChat()" title="Clear Chat">
+        <i class="fas fa-trash"></i>
+      </button>
+      <button class="btn btn-outline" (click)="exportChat()" title="Export Chat"
+              [disabled]="messages.length === 0">
+        <i class="fas fa-download"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="messages-container" #messagesContainer *ngIf="activeDocuments.length > 0">
+    <div class="message"
+         *ngFor="let message of messages"
+         [class.user-message]="message.isUser"
+         [class.ai-message]="!message.isUser">
+
+      <div class="message-content">
+        <!-- Render HTML content -->
+        <div *ngIf="!message.isUser && isHtmlContent(message.content)"
+             [innerHTML]="sanitizeHtml(message.content)"
+             class="html-content">
+        </div>
+
+        <!-- Render plain text content -->
+        <div *ngIf="message.isUser || !isHtmlContent(message.content)"
+             class="text-content">
+          {{ message.content }}
+        </div>
+      </div>
+
+      <div class="message-time">
+        {{ formatTime(message.timestamp) }}
+      </div>
+    </div>
+
+    <div class="message ai-message" *ngIf="isLoading">
+      <div class="message-content">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="activeDocuments.length === 0">
+    <i class="fas fa-comments fa-3x"></i>
+    <h4>Ready to Chat</h4>
+    <p>Select one or more documents from the sidebar to start a conversation.</p>
+  </div>
+
+  <div class="chat-input" *ngIf="activeDocuments.length > 0">
+    <div class="input-container">
+      <textarea [(ngModel)]="currentMessage"
+                (keydown)="onKeyPress($event)"
+                placeholder="Ask a question about your documents..."
+                rows="3"
+                [disabled]="isLoading">
+      </textarea>
+      <button class="send-button"
+              (click)="sendMessage()"
+              [disabled]="!currentMessage.trim() || isLoading">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>

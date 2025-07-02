@@ -1,0 +1,31 @@
+<div class="loading-overlay" *ngIf="loadingState.isLoading">
+  <div class="loading-dialog">
+    <div class="loading-header">
+      <div class="loading-icon">
+        <div class="spinner"></div>
+      </div>
+      <h2 class="loading-title">{{ loadingState.message }}</h2>
+    </div>
+
+    <div class="loading-content">
+      <div class="loading-details" *ngIf="loadingState.details">
+        {{ loadingState.details }}
+      </div>
+
+      <div class="loading-progress" *ngIf="hasProgress">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+        </div>
+        <span class="progress-text">{{ progressPercentage }}%</span>
+      </div>
+
+      <div class="loading-status" *ngIf="!hasProgress">
+        <div class="status-dots">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+<div class="sidebar">
+  <div class="sidebar-section">
+    <div class="section-header">
+      <div class="section-title">{{ sectionTitle }}</div>
+      <div class="selection-controls" *ngIf="displayFiles.length > 0">
+        <label class="multi-select-toggle">
+          <input type="checkbox"
+                 [checked]="isMultiSelectMode"
+                 (change)="onMultiSelectToggle($event)">
+          <span class="toggle-text">Multi-select</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Search State Indicator -->
+    <div class="search-indicator" *ngIf="isSearchActive">
+      <div class="search-info">
+        <span class="search-icon">🔍</span>
+        <span class="search-text">Showing search results</span>
+      </div>
+    </div>
+
+    <!-- Documents List -->
+    <div class="documents-list">
+      <div *ngFor="let file of displayFiles; trackBy: trackByFileName"
+           class="sidebar-item"
+           [class.active]="isDocumentSelected(file)"
+           (click)="onFileClick(file)">
+
+        <div class="item-checkbox" *ngIf="isMultiSelectMode" (click)="$event.stopPropagation()">
+          <input type="checkbox"
+                 [checked]="selectedDocuments.has(getFileKey(file))"
+                 (change)="onCheckboxChange(file, $event)">
+        </div>
+
+        <span class="sidebar-icon">{{ getFileIcon(file.fileExtension) }}</span>
+        <div class="file-info">
+          <div class="file-name">{{ file.fileName }}</div>
+          <div class="file-meta">{{ formatFileSize(file.fileSize) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="loading-text">Loading documents...</div>
+  </div>
+
+  <!-- Empty States -->
+  <div *ngIf="!isLoading && displayFiles.length === 0 && !isSearchActive" class="empty-state">
+    <div class="empty-icon">📁</div>
+    <div class="empty-text">No documents found</div>
+  </div>
+
+  <div *ngIf="!isLoading && displayFiles.length === 0 && isSearchActive" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-text">
+      <div class="empty-title">No matching documents</div>
+      <div class="empty-subtitle">Try adjusting your search terms</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <!--<div class="sidebar-footer">
+    <div class="sidebar-item" (click)="onHelpClick()">
+      <span class="sidebar-icon">❓</span>
+      <div class="file-info">
+        <div class="file-name">Help</div>
+      </div>
+    </div>
+  </div>-->
+</div>

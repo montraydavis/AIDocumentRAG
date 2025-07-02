@@ -1,0 +1,42 @@
+<div class="app-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="logo">P</div>
+      <div class="search-container">
+        <input type="text"
+               class="search-box"
+               [(ngModel)]="searchQuery"
+               (input)="onSearchInput($event)"
+               (keydown)="onSearchKeydown($event)"
+               placeholder="Search documents..."
+               [class.active]="searchState.isActive">
+        <button class="search-clear-btn"
+                *ngIf="searchState.isActive"
+                (click)="onSearchClear()"
+                title="Clear search">
+          ✕
+        </button>
+
+      </div>
+    </div>
+    <!--<div class="top-bar-right">
+      <button class="icon-button">📱</button>
+      <button class="icon-button">🔔</button>
+      <div class="user-avatar">A</div>
+    </div>-->
+  </div>
+
+  <!-- Sidebar -->
+  <app-documents-quick-view (documentSelected)="onDocumentSelected($event)"
+                            (selectionChanged)="onSelectionChanged($event)">
+  </app-documents-quick-view>
+
+  <!-- Main Content - Chat View -->
+  <app-chat-view [selectedDocument]="selectedDocument"
+                 [documentSelection]="documentSelection">
+  </app-chat-view>
+
+  <!-- Loading Dialog Overlay -->
+  <app-loading-dialog [loadingState]="loadingState"></app-loading-dialog>
+</div>
