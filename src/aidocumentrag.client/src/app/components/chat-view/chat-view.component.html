@@ -7,19 +7,61 @@
       </div>
 
       <div class="chat-actions" *ngIf="activeDocuments.length > 0">
-        <button class="icon-button"
-                (click)="toggleSummariesExpanded()"
-                title="{{ summariesExpanded ? 'Collapse summaries' : 'Expand summaries' }}"
-                *ngIf="documentSummaries.length > 0">
-          <i class="fas" [class.fa-chevron-up]="summariesExpanded" [class.fa-chevron-down]="!summariesExpanded"></i>
-        </button>
-        <button class="icon-button" (click)="clearChat()" title="Clear Chat">
-          <i class="fas fa-trash"></i>
-        </button>
-        <button class="icon-button" (click)="exportChat()" title="Export Chat"
-                [disabled]="messages.length === 0">
-          <i class="fas fa-download"></i>
-        </button>
+        <!-- AI Settings -->
+        <div class="ai-settings">
+          <div class="setting-group">
+            <label for="servicer-select" class="setting-label">Provider:</label>
+            <select id="servicer-select"
+                    class="setting-select"
+                    [(ngModel)]="servicer"
+                    (change)="onServicerChange()"
+                    [disabled]="isLoading">
+              <option *ngFor="let svc of servicers" [value]="svc">
+                {{ svc | titlecase }}
+              </option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label for="model-select" class="setting-label">Model:</label>
+            <select id="model-select"
+                    class="setting-select"
+                    [(ngModel)]="model"
+                    (change)="onModelChange()"
+                    [disabled]="isLoading || (servicer === 'ollama' && isLoadingModels)">
+              <option *ngIf="servicer === 'ollama' && isLoadingModels" value="" disabled>
+                Loading models...
+              </option>
+              <option *ngFor="let mdl of availableModels" [value]="mdl">
+                {{ mdl }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="icon-button"
+                  *ngIf="servicer === 'ollama'"
+                  (click)="refreshOllamaModels()"
+                  title="Refresh Ollama Models"
+                  [disabled]="isLoadingModels">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isLoadingModels"></i>
+          </button>
+          <button class="icon-button"
+                  (click)="toggleSummariesExpanded()"
+                  title="{{ summariesExpanded ? 'Collapse summaries' : 'Expand summaries' }}"
+                  *ngIf="documentSummaries.length > 0">
+            <i class="fas" [class.fa-chevron-up]="summariesExpanded" [class.fa-chevron-down]="!summariesExpanded"></i>
+          </button>
+          <button class="icon-button" (click)="clearChat()" title="Clear Chat">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="icon-button" (click)="exportChat()" title="Export Chat"
+                  [disabled]="messages.length === 0">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
       </div>
     </div>
 

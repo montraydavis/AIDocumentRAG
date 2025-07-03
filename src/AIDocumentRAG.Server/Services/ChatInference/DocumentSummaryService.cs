@@ -39,7 +39,13 @@
                 Kernel kernel = scope.ServiceProvider.GetRequiredService<Kernel>();
 
                 string prompt = CreateSummaryPrompt(content, fileName);
-                FunctionResult response = await kernel.InvokePromptAsync(prompt);
+                PromptExecutionSettings promptExecutionSettings = new PromptExecutionSettings()
+                {
+                    ServiceId = "openai",
+                    ModelId = "gpt-4o-mini"
+                };
+
+                FunctionResult response = await kernel.InvokePromptAsync(prompt, new KernelArguments(promptExecutionSettings));
                 string summary = response.ToString();
 
                 // Cache the summary
@@ -116,20 +122,23 @@
 
         private static string CreateSummaryPrompt(string content, string fileName)
         {
-            return $@"Please provide a concise summary of the following document.
+            return $"""
+                Please provide a concise summary of the following document.
+                
 
-Document Name: {fileName}
+                Document Name: {fileName}
 
-Requirements:
-- Keep the summary between 2-4 sentences
-- Focus on the main topics and key information
-- Use clear, professional language
-- Avoid technical jargon when possible
+                Requirements:
+                - Keep the summary between 2-4 sentences
+                - Focus on the main topics and key information
+                - Use clear, professional language
+                - Avoid technical jargon when possible
 
-Document Content:
-{content}
+                Document Content:
+                {content}
 
-Summary:";
+                Summary:
+                """;
         }
 
         private static int EstimateTokenCount(string text)

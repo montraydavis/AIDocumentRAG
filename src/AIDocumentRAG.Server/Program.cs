@@ -38,7 +38,7 @@ namespace AIDocumentRAG.Server
                 ?? throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
 
             builder.Services.AddOpenAIChatCompletion("gpt-4o-mini", openAiApiKey, serviceId: "openai");
-            builder.Services.AddOllamaChatCompletion("phi4", serviceId: "ollama");
+            builder.Services.AddOllamaChatCompletion("phi4", new Uri("http://localhost:11434"), serviceId: "ollama");
             builder.Services.AddScoped<Kernel>();
             builder.Services.AddScoped<IAIChatService, AIChatService>();
 

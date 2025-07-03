@@ -1,7 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
+export interface OllamaModel {
+  name: string;
+  model: string;
+  modified_at: string;
+  size: number;
+  digest: string;
+  details: {
+    parent_model: string;
+    format: string;
+    family: string;
+    families: string[];
+    parameter_size: string;
+    quantization_level: string;
+  };
+}
+
+export interface OllamaModelsResponse {
+  models: OllamaModel[];
+}
 
 export interface AIChatRequest {
   prompt: string;
@@ -25,15 +46,27 @@ export interface ApiResponse<T> {
 })
 export class AIChatService {
   private readonly baseUrl = `${environment.apiUrl}/api/aichat`;
+  private readonly ollamaUrl = 'http://localhost:11434';
 
   constructor(private http: HttpClient) { }
 
-  sendMessage(prompt: string, servicer: string, model: string): Observable<ApiResponse<AIChatResponse>> {
+  getOllamaModels(): Observable<string[]> {
+    return this.http.get<OllamaModelsResponse>(`${this.ollamaUrl}/api/tags`).pipe(
+      map(response => response.models.map(model => model.name)),
+      catchError(error => {
+        console.error('Error fetching Ollama models:', error);
+        // Return fallback models if API call fails
+        return of(['phi4']);
+      })
+    );
+  }
+
+  sendMessage(prompt: string, servicer: string = 'openai', model: string = 'gpt-4o-mini'): Observable<ApiResponse<AIChatResponse>> {
     const request: AIChatRequest = { prompt, servicer, model };
     return this.http.post<ApiResponse<AIChatResponse>>(`${this.baseUrl}/chat`, request);
   }
 
-  sendMessageStream(prompt: string, servicer: string, model: string): Observable<string> {
+  sendMessageStream(prompt: string, servicer: string = 'openai', model: string = 'gpt-4o-mini'): Observable<string> {
     return new Observable<string>(observer => {
       const request: AIChatRequest = { prompt, servicer, model };
 

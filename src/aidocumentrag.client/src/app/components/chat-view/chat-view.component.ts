@@ -38,8 +38,9 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
   servicer: string = 'openai';
   servicers: string[] = ['openai', 'ollama'];
   model: string = 'gpt-4o-mini';
-  ollamaModels: string[] = ['phi4'];
-  openAiModels: string[] = ['gpt-4','gpt-4o','gpt-4o-mini','gpt-4.1','gpt-4.1-nano'];
+  ollamaModels: string[] = [];
+  openAiModels: string[] = ['gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-nano'];
+  isLoadingModels = false;
 
   // Summary-related properties
   documentSummaries: DocumentSummaryDto[] = [];
@@ -48,6 +49,7 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
 
   private readonly storageKey = 'document-conversations';
   private readonly summaryExpandedKey = 'summaries-expanded-state';
+  private readonly servicerSettingsKey = 'chat-servicer-settings';
   private shouldScrollToBottom = false;
   private destroy$ = new Subject<void>();
 
@@ -56,8 +58,9 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
     private fileManagementService: FileManagementService,
     private summaryService: DocumentSummaryService
   ) {
-    // Load expanded state from localStorage
     this.loadSummaryExpandedState();
+    this.loadServicerSettings();
+    this.loadOllamaModels();
   }
 
   get activeDocuments(): FileMetadataDto[] {
@@ -82,6 +85,10 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       return this.activeDocuments[0].fileName;
     }
     return this.activeDocuments.map(doc => doc.fileName).join(', ');
+  }
+
+  get availableModels(): string[] {
+    return this.servicer === 'openai' ? this.openAiModels : this.ollamaModels;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -122,6 +129,78 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
     } catch (error) {
       console.error('Error saving summary expanded state:', error);
     }
+  }
+
+  private loadServicerSettings(): void {
+    try {
+      const stored = localStorage.getItem(this.servicerSettingsKey);
+      if (stored) {
+        const settings = JSON.parse(stored);
+        this.servicer = settings.servicer || 'openai';
+        this.model = settings.model || 'gpt-4o-mini';
+      }
+    } catch (error) {
+      console.error('Error loading servicer settings:', error);
+    }
+  }
+
+  private loadOllamaModels(): void {
+    this.isLoadingModels = true;
+    this.aiChatService.getOllamaModels()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (models) => {
+          this.ollamaModels = models;
+          this.isLoadingModels = false;
+
+          // Validate model is available for the selected servicer after loading
+          if (this.servicer === 'ollama' && !this.availableModels.includes(this.model)) {
+            this.model = this.availableModels.length > 0 ? this.availableModels[0] : 'phi4';
+            this.saveServicerSettings();
+          }
+
+          console.log(`Loaded ${models.length} Ollama models:`, models);
+        },
+        error: (error) => {
+          console.error('Failed to load Ollama models:', error);
+          this.ollamaModels = ['phi4']; // fallback
+          this.isLoadingModels = false;
+        }
+      });
+  }
+
+  private saveServicerSettings(): void {
+    try {
+      const settings = {
+        servicer: this.servicer,
+        model: this.model
+      };
+      localStorage.setItem(this.servicerSettingsKey, JSON.stringify(settings));
+    } catch (error) {
+      console.error('Error saving servicer settings:', error);
+    }
+  }
+
+  refreshOllamaModels(): void {
+    if (this.servicer === 'ollama') {
+      this.loadOllamaModels();
+    }
+  }
+
+  onServicerChange(): void {
+    // Reset model to first available when servicer changes
+    this.model = this.availableModels.length > 0 ? this.availableModels[0] : '';
+
+    // If switching to ollama and models aren't loaded yet, reload them
+    if (this.servicer === 'ollama' && this.ollamaModels.length === 0) {
+      this.loadOllamaModels();
+    }
+
+    this.saveServicerSettings();
+  }
+
+  onModelChange(): void {
+    this.saveServicerSettings();
   }
 
   toggleSummariesExpanded(): void {
@@ -370,8 +449,8 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       // Build contextual prompt with document information
       const contextualPrompt = await this.buildContextualPrompt(messageToSend);
 
-      // Send message to AI service
-      this.aiChatService.sendMessage(contextualPrompt)
+      // Send message to AI service with current servicer and model
+      this.aiChatService.sendMessage(contextualPrompt, this.servicer, this.model)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
@@ -441,7 +520,9 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       isMultiDocument: this.isMultiDocumentMode,
       exportDate: new Date().toISOString(),
       messages: this.messages,
-      summaries: this.documentSummaries
+      summaries: this.documentSummaries,
+      servicer: this.servicer,
+      model: this.model
     };
 
     const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });

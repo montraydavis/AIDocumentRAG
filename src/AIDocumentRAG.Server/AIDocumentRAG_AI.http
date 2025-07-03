@@ -5,7 +5,9 @@ POST {{AIDocumentRAG.Server_HostAddress}}/api/aichat/chat
 Content-Type: application/json
 
 {
-  "prompt": "Hello, how are you today?"
+  "prompt": "Hello, how are you today?",
+  "servicer": "openai",
+  "model": "gpt-4o-mini"
 }
 
 ###
@@ -15,7 +17,9 @@ POST {{AIDocumentRAG.Server_HostAddress}}/api/aichat/chat
 Content-Type: application/json
 
 {
-  "prompt": "What are the key features of semantic kernel?"
+  "prompt": "What are the key features of semantic kernel?",
+  "servicer": "openai",
+  "model": "gpt-4o-mini"
 }
 
 ###
@@ -25,7 +29,9 @@ POST {{AIDocumentRAG.Server_HostAddress}}/api/aichat/chat/stream
 Content-Type: application/json
 
 {
-  "prompt": "Tell me a short story about artificial intelligence"
+  "prompt": "Tell me a short story about artificial intelligence",
+  "servicer": "openai",
+  "model": "gpt-4o-mini"
 }
 
 ###
@@ -35,7 +41,9 @@ POST {{AIDocumentRAG.Server_HostAddress}}/api/aichat/chat
 Content-Type: application/json
 
 {
-  "prompt": ""
+  "prompt": "",
+  "servicer": "openai",
+  "model": "gpt-4o-mini"
 }
 
 ###
