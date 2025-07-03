@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { FileMetadataDto, FileManagementService } from '../../services/file-management.service';
 import { AIChatService } from '../../services/ai-chat.service';
+import { DocumentSummaryService, DocumentSummaryDto } from '../../services/document-summary.service';
 import { DocumentSelection } from '../documents-quick-view/documents-quick-view.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -33,14 +34,25 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
   messages: ChatMessage[] = [];
   currentMessage = '';
   isLoading = false;
+
+  // Summary-related properties
+  documentSummaries: DocumentSummaryDto[] = [];
+  summariesLoading = false;
+  summariesExpanded = false;
+
   private readonly storageKey = 'document-conversations';
+  private readonly summaryExpandedKey = 'summaries-expanded-state';
   private shouldScrollToBottom = false;
   private destroy$ = new Subject<void>();
 
   constructor(
     private aiChatService: AIChatService,
-    private fileManagementService: FileManagementService
-  ) { }
+    private fileManagementService: FileManagementService,
+    private summaryService: DocumentSummaryService
+  ) {
+    // Load expanded state from localStorage
+    this.loadSummaryExpandedState();
+  }
 
   get activeDocuments(): FileMetadataDto[] {
     return this.documentSelection?.selectedDocuments || [];
@@ -69,8 +81,10 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
   ngOnChanges(changes: SimpleChanges) {
     if (changes['documentSelection'] && this.documentSelection) {
       this.loadConversationForSelection();
+      this.loadSummariesForCurrentSelection();
     } else if (changes['selectedDocument'] && this.selectedDocument && !this.documentSelection) {
       this.loadConversationForDocument();
+      this.loadSummariesForCurrentSelection();
     }
   }
 
@@ -84,6 +98,75 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private loadSummaryExpandedState(): void {
+    try {
+      const stored = localStorage.getItem(this.summaryExpandedKey);
+      this.summariesExpanded = stored ? JSON.parse(stored) : false;
+    } catch (error) {
+      console.error('Error loading summary expanded state:', error);
+      this.summariesExpanded = false;
+    }
+  }
+
+  private saveSummaryExpandedState(): void {
+    try {
+      localStorage.setItem(this.summaryExpandedKey, JSON.stringify(this.summariesExpanded));
+    } catch (error) {
+      console.error('Error saving summary expanded state:', error);
+    }
+  }
+
+  toggleSummariesExpanded(): void {
+    this.summariesExpanded = !this.summariesExpanded;
+    this.saveSummaryExpandedState();
+  }
+
+  private loadSummariesForCurrentSelection(): void {
+    if (this.activeDocuments.length === 0) {
+      this.documentSummaries = [];
+      this.summariesLoading = false;
+      return;
+    }
+
+    this.summariesLoading = true;
+    const fileNames = this.activeDocuments.map(doc => doc.fileName);
+
+    this.summaryService.loadSummariesForFiles(fileNames)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (summaries) => {
+          this.documentSummaries = summaries;
+          this.summariesLoading = false;
+          console.log(`Loaded ${summaries.length} summaries for ${fileNames.length} documents`);
+        },
+        error: (error) => {
+          console.error('Error loading summaries:', error);
+          this.documentSummaries = [];
+          this.summariesLoading = false;
+        }
+      });
+  }
+
+  formatDate(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return 'just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+
+      return date.toLocaleDateString();
+    } catch (error) {
+      return 'unknown';
+    }
   }
 
   private scrollToBottom(): void {
@@ -351,7 +434,8 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       documents: this.activeDocuments.map(doc => doc.fileName),
       isMultiDocument: this.isMultiDocumentMode,
       exportDate: new Date().toISOString(),
-      messages: this.messages
+      messages: this.messages,
+      summaries: this.documentSummaries
     };
 
     const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });

@@ -1,8 +1,10 @@
 ﻿namespace AIDocumentRAG.Server.Controllers
 {
+    using AIDocumentRAG.Server.Core.FileManagement;
+    using AIDocumentRAG.Server.Models;
     using AIDocumentRAG.Server.Models.Requests;
     using AIDocumentRAG.Server.Models.Responses;
-    using AIDocumentRAG.Server.Services;
+    using AIDocumentRAG.Server.Services.FileManagement;
 
     using Microsoft.AspNetCore.Mvc;
 

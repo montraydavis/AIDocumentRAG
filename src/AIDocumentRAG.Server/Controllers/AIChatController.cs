@@ -1,8 +1,8 @@
 ﻿namespace AIDocumentRAG.Server.Controllers
 {
+    using AIDocumentRAG.Server.Core.ChatInference;
     using AIDocumentRAG.Server.Models.Requests;
     using AIDocumentRAG.Server.Models.Responses;
-    using AIDocumentRAG.Server.Services;
 
     using Markdig;
 

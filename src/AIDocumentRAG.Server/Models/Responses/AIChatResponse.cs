@@ -1,8 +1,4 @@
-﻿
-
-
-
-namespace AIDocumentRAG.Server.Models.Responses
+﻿namespace AIDocumentRAG.Server.Models.Responses
 {
     public record AIChatResponse(string Response);
 }

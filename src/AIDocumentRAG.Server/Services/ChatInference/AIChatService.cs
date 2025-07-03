@@ -1,12 +1,8 @@
-﻿namespace AIDocumentRAG.Server.Services
+﻿namespace AIDocumentRAG.Server.Services.ChatInference
 {
-    using Microsoft.SemanticKernel;
+    using AIDocumentRAG.Server.Core.ChatInference;
 
-    public interface IAIChatService
-    {
-        Task<string> GenerateResponseAsync(string prompt);
-        IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt);
-    }
+    using Microsoft.SemanticKernel;
 
     public class AIChatService : IAIChatService
     {

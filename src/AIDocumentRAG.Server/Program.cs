@@ -1,9 +1,11 @@
 namespace AIDocumentRAG.Server
 {
+    using AIDocumentRAG.Server.Core.ChatInference;
+    using AIDocumentRAG.Server.Core.FileManagement;
     using AIDocumentRAG.Server.Models.Configuration;
-    using AIDocumentRAG.Server.Services;
+    using AIDocumentRAG.Server.Services.ChatInference;
+    using AIDocumentRAG.Server.Services.FileManagement;
 
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.SemanticKernel;
 
     public class Program
@@ -15,13 +17,12 @@ namespace AIDocumentRAG.Server
             // Add services to the container.
             builder.Services.AddControllers();
 
-
             // Add CORS services
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy =>
                 {
-                    policy.WithOrigins("https://localhost:58585", "https://localhost:4200") // Specific origins
+                    policy.WithOrigins("https://localhost:58585", "https://localhost:4200")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();
@@ -32,11 +33,6 @@ namespace AIDocumentRAG.Server
             builder.Services.Configure<FileManagementOptions>(
                 builder.Configuration.GetSection(FileManagementOptions.SectionName));
 
-            // Register File Management Services
-            builder.Services.AddScoped<IFileProcessor, FileProcessor>();
-            builder.Services.AddScoped<IDirectoryCopier, DirectoryCopier>();
-            builder.Services.AddScoped<FileManagementService>();
-
             // Register AI Services
             string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
                 ?? throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
@@ -45,13 +41,20 @@ namespace AIDocumentRAG.Server
             builder.Services.AddScoped<Kernel>();
             builder.Services.AddScoped<IAIChatService, AIChatService>();
 
+            // Register Document Summary Service as Singleton to persist cache
+            builder.Services.AddSingleton<IDocumentSummaryService, DocumentSummaryService>();
+
+            // Register File Management Services (updated order for DI)
+            builder.Services.AddScoped<IFileProcessor, FileProcessor>();
+            builder.Services.AddScoped<IDirectoryCopier, DirectoryCopier>();
+            builder.Services.AddScoped<FileManagementService>();
+
             WebApplication app = builder.Build();
 
             app.UseDefaultFiles();
             app.MapStaticAssets();
 
             // Configure the HTTP request pipeline.
-            // Remove UseHttpsRedirection for development to avoid redirect issues
             if (!app.Environment.IsDevelopment())
             {
                 app.UseHttpsRedirection();
