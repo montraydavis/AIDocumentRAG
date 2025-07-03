@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface AIChatRequest {
   prompt: string;
+  servicer: string;
+  model: string;
 }
 
 export interface AIChatResponse {
@@ -26,14 +28,14 @@ export class AIChatService {
 
   constructor(private http: HttpClient) { }
 
-  sendMessage(prompt: string): Observable<ApiResponse<AIChatResponse>> {
-    const request: AIChatRequest = { prompt };
+  sendMessage(prompt: string, servicer: string, model: string): Observable<ApiResponse<AIChatResponse>> {
+    const request: AIChatRequest = { prompt, servicer, model };
     return this.http.post<ApiResponse<AIChatResponse>>(`${this.baseUrl}/chat`, request);
   }
 
-  sendMessageStream(prompt: string): Observable<string> {
+  sendMessageStream(prompt: string, servicer: string, model: string): Observable<string> {
     return new Observable<string>(observer => {
-      const request: AIChatRequest = { prompt };
+      const request: AIChatRequest = { prompt, servicer, model };
 
       fetch(`${this.baseUrl}/chat/stream`, {
         method: 'POST',

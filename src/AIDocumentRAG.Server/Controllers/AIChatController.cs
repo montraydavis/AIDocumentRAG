@@ -32,7 +32,7 @@
                         false, null, "Prompt cannot be empty"));
                 }
 
-                string response = Markdown.ToHtml(await this._aiChatService.GenerateResponseAsync(request.Prompt));
+                string response = Markdown.ToHtml(await this._aiChatService.GenerateResponseAsync(request.Prompt, request.Servicer, request.Model));
                 AIChatResponse chatResponse = new AIChatResponse(response);
 
                 return this.Ok(new ApiResponse<AIChatResponse>(true, chatResponse));
@@ -61,7 +61,7 @@
                 this.Response.Headers.Append("Cache-Control", "no-cache");
                 this.Response.Headers.Append("Connection", "keep-alive");
 
-                await foreach (string chunk in this._aiChatService.GenerateResponseStreamAsync(request.Prompt))
+                await foreach (string chunk in this._aiChatService.GenerateResponseStreamAsync(request.Prompt, request.Servicer, request.Model))
                 {
                     await this.Response.WriteAsync(chunk);
                     await this.Response.Body.FlushAsync();

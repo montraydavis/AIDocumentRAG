@@ -2,7 +2,7 @@
 {
     public interface IAIChatService
     {
-        Task<string> GenerateResponseAsync(string prompt);
-        IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt);
+        Task<string> GenerateResponseAsync(string prompt, string servicer, string model);
+        IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt, string servicer, string model);
     }
 }

@@ -3,6 +3,7 @@
     using AIDocumentRAG.Server.Core.ChatInference;
 
     using Microsoft.SemanticKernel;
+    using Microsoft.SemanticKernel.Connectors.OpenAI;
 
     public class AIChatService : IAIChatService
     {
@@ -15,11 +16,17 @@
             this._logger = logger;
         }
 
-        public async Task<string> GenerateResponseAsync(string prompt)
+        public async Task<string> GenerateResponseAsync(string prompt, string servicer, string model)
         {
             try
             {
-                FunctionResult response = await this._kernel.InvokePromptAsync(prompt);
+                OpenAIPromptExecutionSettings promptExecutionSettings = new OpenAIPromptExecutionSettings()
+                {
+                    ServiceId = servicer,
+                    ModelId = model
+                };
+
+                FunctionResult response = await this._kernel.InvokePromptAsync(prompt, new KernelArguments(promptExecutionSettings));
                 return response.ToString();
             }
             catch (Exception ex)
@@ -29,13 +36,19 @@
             }
         }
 
-        public async IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt)
+        public async IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt, string servicer, string model)
         {
+            OpenAIPromptExecutionSettings promptExecutionSettings = new OpenAIPromptExecutionSettings()
+            {
+                ServiceId = servicer,
+                ModelId = model
+            };
+
             IAsyncEnumerable<StreamingKernelContent> streamingResponse;
 
             try
             {
-                streamingResponse = this._kernel.InvokePromptStreamingAsync(prompt);
+                streamingResponse = this._kernel.InvokePromptStreamingAsync(prompt, new KernelArguments(promptExecutionSettings));
             }
             catch (Exception ex)
             {
@@ -62,6 +75,11 @@
             {
                 await enumerator.DisposeAsync();
             }
+        }
+
+        public IAsyncEnumerable<string> GenerateResponseStreamAsync(string prompt)
+        {
+            throw new NotImplementedException();
         }
     }
 }
