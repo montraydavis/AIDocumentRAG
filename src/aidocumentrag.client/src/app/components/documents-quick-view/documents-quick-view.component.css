@@ -338,12 +338,11 @@
 }
 
 .section-controls {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "refresh selection";
   gap: 16px;
-  flex-wrap: wrap;
-  justify-content: space-between; /* Desktop: space between */
-  min-width: 0; /* Allow content to shrink */
+  align-items: center;
   width: 100%; /* Take full available width */
 }
 
@@ -375,6 +374,7 @@
 }
 
 .refresh-btn {
+  grid-area: refresh;
   background: none;
   border: none;
   cursor: pointer;
@@ -392,6 +392,7 @@
   border: 1px solid transparent;
   flex-shrink: 0;
   white-space: nowrap;
+  box-sizing: border-box;
   /* Remove align-self: flex-start to prevent alignment issues */
 }
 
@@ -481,9 +482,9 @@
 }
 
 .selection-controls {
+  grid-area: selection;
   display: flex;
   align-items: center;
-  margin-left: auto; /* Desktop: push to right */
   flex-shrink: 0; /* Prevent shrinking */
 }
 
@@ -501,9 +502,8 @@
   height: 40px; /* Match refresh button height exactly */
   flex-shrink: 0; /* Prevent shrinking */
   white-space: nowrap; /* Prevent text wrapping */
+  box-sizing: border-box;
   /* Ensure consistent alignment with refresh button */
-  align-items: center;
-  justify-content: center;
 }
 
 .multi-select-toggle:hover {
@@ -573,16 +573,15 @@
   }
   
   .section-controls {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "refresh"
+      "selection";
     gap: 12px;
-    flex-direction: column;
     align-items: stretch;
-    justify-content: flex-start; /* Mobile: align to start */
   }
   
   .selection-controls {
-    margin-left: 0; /* Remove auto margin on mobile */
-    margin-top: 8px;
-    align-self: stretch; /* Stretch to full width on mobile */
     justify-content: center; /* Center the multi-select toggle */
   }
   
@@ -590,14 +589,12 @@
     padding: 10px 12px;
     min-width: 80px;
     height: 44px;
-    align-self: stretch; /* Full width on mobile */
     justify-content: center; /* Center content */
   }
 
   .multi-select-toggle {
     height: 44px; /* Match refresh button height on mobile */
     padding: 10px 12px;
-    align-self: stretch; /* Full width on mobile */
     justify-content: center; /* Center content */
   }
 
