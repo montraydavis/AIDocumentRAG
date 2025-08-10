@@ -340,9 +340,9 @@
 .section-controls {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-areas: "refresh selection";
   gap: 16px;
   align-items: center;
+  min-width: 0; /* Allow content to shrink */
   width: 100%; /* Take full available width */
 }
 
@@ -374,7 +374,6 @@
 }
 
 .refresh-btn {
-  grid-area: refresh;
   background: none;
   border: none;
   cursor: pointer;
@@ -482,9 +481,9 @@
 }
 
 .selection-controls {
-  grid-area: selection;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0; /* Prevent shrinking */
 }
 
@@ -573,15 +572,14 @@
   }
   
   .section-controls {
-    grid-template-columns: 1fr;
-    grid-template-areas: 
-      "refresh"
-      "selection";
     gap: 12px;
+    grid-template-columns: 1fr;
     align-items: stretch;
   }
   
   .selection-controls {
+    margin-top: 8px;
+    align-self: stretch; /* Stretch to full width on mobile */
     justify-content: center; /* Center the multi-select toggle */
   }
   
@@ -589,12 +587,14 @@
     padding: 10px 12px;
     min-width: 80px;
     height: 44px;
+    align-self: stretch; /* Full width on mobile */
     justify-content: center; /* Center content */
   }
 
   .multi-select-toggle {
     height: 44px; /* Match refresh button height on mobile */
     padding: 10px 12px;
+    align-self: stretch; /* Full width on mobile */
     justify-content: center; /* Center content */
   }
 
@@ -629,7 +629,7 @@
     font-size: 18px;
     padding: 12px;
   }
-
+  
   .multi-select-toggle {
     height: 48px; /* Match refresh button height on small mobile */
     padding: 12px;
