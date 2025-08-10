@@ -1,0 +1,107 @@
+/* ========================================
+   AIDocumentRAG Design System
+   ======================================== */
+
+:root {
+  /* === SPACING SCALE === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 40px;
+  --space-5xl: 48px;
+
+  /* === TYPOGRAPHY SCALE === */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+
+  /* === BORDER RADIUS SCALE === */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* === Z-INDEX SCALE === */
+  --z-dropdown: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+
+  /* === COMPONENT SPECIFIC === */
+  --sidebar-width-min: 200px;
+  --sidebar-width-max: 300px;
+  --dialog-width-sm: 400px;
+  --dialog-width-md: 600px;
+  --dialog-width-lg: 800px;
+  --content-max-height: 200px;
+  --header-height: 48px;
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === BREAKPOINTS === */
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1200px;
+
+  /* === FLUENT DESIGN SYSTEM === */
+  /* Colors */
+  --fluent-primary: #0078d4;
+  --fluent-primary-hover: #106ebe;
+  --fluent-primary-pressed: #005a9e;
+  --fluent-primary-light: #deecf9;
+  --fluent-primary-lighter: #eff6fc;
+  --fluent-neutral-background: #faf9f8;
+  --fluent-neutral-background-hover: #f3f2f1;
+  --fluent-neutral-background-pressed: #edebe9;
+  --fluent-neutral-background-disabled: #f3f2f1;
+  --fluent-neutral-stroke: #e1dfdd;
+  --fluent-neutral-stroke-hover: #d2d0ce;
+  --fluent-neutral-stroke-pressed: #c8c6c4;
+  --fluent-neutral-stroke-disabled: #f3f2f1;
+  --fluent-neutral-foreground: #323130;
+  --fluent-neutral-foreground-2: #605e5c;
+  --fluent-neutral-foreground-3: #a19f9d;
+  --fluent-neutral-foreground-disabled: #a19f9d;
+
+  /* Shadows */
+  --fluent-shadow-2: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0px 2px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-4: 0 2px 4px rgba(0, 0, 0, 0.14), 0 0px 4px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-8: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0px 8px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-16: 0 8px 16px rgba(0, 0, 0, 0.14), 0 0px 16px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-28: 0 14px 28px rgba(0, 0, 0, 0.22), 0 10px 10px rgba(0, 0, 0, 0.12);
+  --fluent-shadow-64: 0 32px 64px rgba(0, 0, 0, 0.22), 0 16px 16px rgba(0, 0, 0, 0.12);
+
+  /* Border Radius */
+  --fluent-corner-radius-medium: 4px;
+  --fluent-corner-radius-large: 8px;
+  --fluent-corner-radius-xlarge: 12px;
+
+  /* Animation Durations */
+  --fluent-duration-ultra-fast: 50ms;
+  --fluent-duration-faster: 100ms;
+  --fluent-duration-fast: 150ms;
+  --fluent-duration-normal: 200ms;
+  --fluent-duration-slow: 300ms;
+  --fluent-duration-slower: 400ms;
+
+  /* Animation Curves */
+  --fluent-curve-accelerate-max: cubic-bezier(1, 0, 1, 1);
+  --fluent-curve-accelerate-mid: cubic-bezier(0.7, 0, 1, 0.5);
+  --fluent-curve-accelerate-min: cubic-bezier(0.8, 0, 0.78, 1);
+  --fluent-curve-decelerate-max: cubic-bezier(0, 0, 0, 1);
+  --fluent-curve-decelerate-mid: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --fluent-curve-decelerate-min: cubic-bezier(0.33, 0, 0.1, 1);
+  --fluent-curve-easy-ease: cubic-bezier(0.33, 0, 0.67, 1);
+  --fluent-curve-linear: cubic-bezier(0, 0, 1, 1);
+}

@@ -1,3 +1,6 @@
+/* Import Design System */
+@import './styles/design-system.css';
+
 /* Enhanced Global Styles with Fluent Design */
 html, body {
   margin: 0;
@@ -7,8 +10,8 @@ html, body {
   overflow: hidden;
   font-family: 'Segoe UI', 'Segoe UI Web (West European)', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-  color: #323130;
-  font-size: 14px;
+  color: var(--fluent-neutral-foreground);
+  font-size: var(--text-base);
   line-height: 1.4;
   position: relative;
 }
@@ -29,54 +32,7 @@ app-root {
   overflow: hidden;
 }
 
-/* Fluent Design Variables */
-:root {
-  /* Colors */
-  --fluent-primary: #0078d4;
-  --fluent-primary-hover: #106ebe;
-  --fluent-primary-pressed: #005a9e;
-  --fluent-primary-light: #deecf9;
-  --fluent-primary-lighter: #eff6fc;
-  --fluent-neutral-background: #faf9f8;
-  --fluent-neutral-background-hover: #f3f2f1;
-  --fluent-neutral-background-pressed: #edebe9;
-  --fluent-neutral-background-disabled: #f3f2f1;
-  --fluent-neutral-stroke: #e1dfdd;
-  --fluent-neutral-stroke-hover: #d2d0ce;
-  --fluent-neutral-stroke-pressed: #c8c6c4;
-  --fluent-neutral-stroke-disabled: #f3f2f1;
-  --fluent-neutral-foreground: #323130;
-  --fluent-neutral-foreground-2: #605e5c;
-  --fluent-neutral-foreground-3: #a19f9d;
-  --fluent-neutral-foreground-disabled: #a19f9d;
-  /* Shadows */
-  --fluent-shadow-2: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0px 2px rgba(0, 0, 0, 0.12);
-  --fluent-shadow-4: 0 2px 4px rgba(0, 0, 0, 0.14), 0 0px 4px rgba(0, 0, 0, 0.12);
-  --fluent-shadow-8: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0px 8px rgba(0, 0, 0, 0.12);
-  --fluent-shadow-16: 0 8px 16px rgba(0, 0, 0, 0.14), 0 0px 16px rgba(0, 0, 0, 0.12);
-  --fluent-shadow-28: 0 14px 28px rgba(0, 0, 0, 0.22), 0 10px 10px rgba(0, 0, 0, 0.12);
-  --fluent-shadow-64: 0 32px 64px rgba(0, 0, 0, 0.22), 0 16px 16px rgba(0, 0, 0, 0.12);
-  /* Border Radius */
-  --fluent-corner-radius-medium: 4px;
-  --fluent-corner-radius-large: 8px;
-  --fluent-corner-radius-xlarge: 12px;
-  /* Animation Durations */
-  --fluent-duration-ultra-fast: 50ms;
-  --fluent-duration-faster: 100ms;
-  --fluent-duration-fast: 150ms;
-  --fluent-duration-normal: 200ms;
-  --fluent-duration-slow: 300ms;
-  --fluent-duration-slower: 400ms;
-  /* Animation Curves */
-  --fluent-curve-accelerate-max: cubic-bezier(1, 0, 1, 1);
-  --fluent-curve-accelerate-mid: cubic-bezier(0.7, 0, 1, 0.5);
-  --fluent-curve-accelerate-min: cubic-bezier(0.8, 0, 0.78, 1);
-  --fluent-curve-decelerate-max: cubic-bezier(0, 0, 0, 1);
-  --fluent-curve-decelerate-mid: cubic-bezier(0.1, 0.9, 0.2, 1);
-  --fluent-curve-decelerate-min: cubic-bezier(0.33, 0, 0.1, 1);
-  --fluent-curve-easy-ease: cubic-bezier(0.33, 0, 0.67, 1);
-  --fluent-curve-linear: cubic-bezier(0, 0, 1, 1);
-}
+/* Design system variables are now imported from design-system.css */
 
 /* Focus styles */
 *:focus {
@@ -113,97 +69,74 @@ app-root {
 }
 
 /* Common button styles */
-.fluent-button {
+/* Simplified Button Utility Classes */
+.btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 5px 12px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  font-weight: 500;
   border: 1px solid var(--fluent-neutral-stroke);
-  border-radius: var(--fluent-corner-radius-medium);
   background: var(--fluent-neutral-background);
   color: var(--fluent-neutral-foreground);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 20px;
   cursor: pointer;
-  transition: all var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
-  box-shadow: var(--fluent-shadow-2);
-  position: relative;
-  overflow: hidden;
+  transition: all var(--transition-fast);
+  min-height: 32px;
+  min-width: 80px;
+  user-select: none;
+  text-decoration: none;
 }
 
-  .fluent-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity var(--fluent-duration-ultra-fast) var(--fluent-curve-linear);
-  }
+.btn:hover {
+  border-color: var(--fluent-neutral-stroke-hover);
+  background: var(--fluent-neutral-background-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--fluent-shadow-4);
+}
 
-  .fluent-button:hover {
-    background: var(--fluent-neutral-background-hover);
-    border-color: var(--fluent-neutral-stroke-hover);
-    box-shadow: var(--fluent-shadow-4);
-    transform: translateY(-1px);
-  }
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--fluent-shadow-2);
+  background: var(--fluent-neutral-background-pressed);
+}
 
-    .fluent-button:hover::before {
-      opacity: 0.05;
-    }
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
 
-  .fluent-button:active {
-    background: var(--fluent-neutral-background-pressed);
-    border-color: var(--fluent-neutral-stroke-pressed);
-    box-shadow: var(--fluent-shadow-2);
-    transform: translateY(0);
-  }
+.btn--primary {
+  background: var(--fluent-primary);
+  border-color: var(--fluent-primary);
+  color: white;
+}
 
-    .fluent-button:active::before {
-      opacity: 0.1;
-    }
+.btn--primary:hover {
+  background: var(--fluent-primary-hover);
+  border-color: var(--fluent-primary-hover);
+}
 
-  .fluent-button:disabled {
-    background: var(--fluent-neutral-background-disabled);
-    border-color: var(--fluent-neutral-stroke-disabled);
-    color: var(--fluent-neutral-foreground-disabled);
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-
-  .fluent-button.primary {
-    background: var(--fluent-primary);
-    border-color: var(--fluent-primary);
-    color: white;
-  }
-
-    .fluent-button.primary:hover {
-      background: var(--fluent-primary-hover);
-      border-color: var(--fluent-primary-hover);
-    }
-
-    .fluent-button.primary:active {
-      background: var(--fluent-primary-pressed);
-      border-color: var(--fluent-primary-pressed);
-    }
+.btn--primary:active {
+  background: var(--fluent-primary-pressed);
+  border-color: var(--fluent-primary-pressed);
+}
 
 /* Common input styles */
 .fluent-input {
-  padding: 7px 11px;
+  padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--fluent-neutral-stroke);
-  border-radius: var(--fluent-corner-radius-medium);
+  border-radius: var(--radius-sm);
   background: var(--fluent-neutral-background);
   color: var(--fluent-neutral-foreground);
   font-family: inherit;
-  font-size: 14px;
-  line-height: 20px;
-  transition: all var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
+  font-size: var(--text-base);
+  line-height: 1.4;
+  transition: all var(--transition-fast);
   box-shadow: var(--fluent-shadow-2);
 }
 
@@ -226,22 +159,22 @@ app-root {
 .fluent-card {
   background: white;
   border: 1px solid var(--fluent-neutral-stroke);
-  border-radius: var(--fluent-corner-radius-large);
+  border-radius: var(--radius-lg);
   box-shadow: var(--fluent-shadow-4);
-  transition: all var(--fluent-duration-normal) var(--fluent-curve-easy-ease);
+  transition: all var(--transition-normal);
 }
 
-  .fluent-card:hover {
-    border-color: var(--fluent-neutral-stroke-hover);
-    box-shadow: var(--fluent-shadow-8);
-    transform: translateY(-2px);
-  }
+.fluent-card:hover {
+  border-color: var(--fluent-neutral-stroke-hover);
+  box-shadow: var(--fluent-shadow-8);
+  transform: translateY(-2px);
+}
 
 /* Animation keyframes */
 @keyframes fluent-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(var(--space-sm));
   }
 
   to {
