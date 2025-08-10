@@ -1,10 +1,12 @@
 namespace AIDocumentRAG.Server
 {
     using AIDocumentRAG.Server.Core.ChatInference;
-    using AIDocumentRAG.Server.Core.FileManagement;
-    using AIDocumentRAG.Server.Models.Configuration;
-    using AIDocumentRAG.Server.Services.ChatInference;
-    using AIDocumentRAG.Server.Services.FileManagement;
+using AIDocumentRAG.Server.Core.FileManagement;
+using AIDocumentRAG.Server.Core.NoteGeneration;
+using AIDocumentRAG.Server.Models.Configuration;
+using AIDocumentRAG.Server.Services.ChatInference;
+using AIDocumentRAG.Server.Services.FileManagement;
+using AIDocumentRAG.Server.Services.NoteGeneration;
 
     using Microsoft.SemanticKernel;
 
@@ -44,6 +46,10 @@ namespace AIDocumentRAG.Server
 
             // Register Document Summary Service as Singleton to persist cache
             builder.Services.AddSingleton<IDocumentSummaryService, DocumentSummaryService>();
+
+            // Register Note Generation Services
+            builder.Services.AddScoped<INoteRepository, NoteRepository>();
+            builder.Services.AddScoped<INoteGenerationService, NoteGenerationService>();
 
             // Register File Management Services (updated order for DI)
             builder.Services.AddScoped<IFileProcessor, FileProcessor>();

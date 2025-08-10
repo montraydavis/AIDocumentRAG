@@ -3,12 +3,14 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  width: 100%;
   overflow: hidden;
   font-family: 'Segoe UI', 'Segoe UI Web (West European)', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   color: #323130;
   font-size: 14px;
   line-height: 1.4;
+  position: relative;
 }
 
 *, *::before, *::after {
@@ -19,6 +21,12 @@ app-root {
   display: block;
   height: 100vh;
   width: 100vw;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 /* Fluent Design Variables */

@@ -1,6 +1,19 @@
+:root {
+  --section-gap: 12px;
+  --control-gap: 16px;
+  --button-size: 40px;
+  --border-radius: 6px;
+  --transition-duration: 0.2s;
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --primary-light: rgba(0, 123, 255, 0.1);
+  --neutral-color: #6c757d;
+  --neutral-hover: rgba(0, 0, 0, 0.1);
+}
+
 .sidebar {
   background: linear-gradient(180deg, white 0%, var(--fluent-neutral-background) 100%);
-  padding: 20px 12px;
+  padding: var(--sidebar-padding);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -8,70 +21,244 @@
   height: 100%;
   backdrop-filter: blur(10px);
   animation: fluent-slide-in-left var(--fluent-duration-slower) var(--fluent-curve-decelerate-mid);
+  min-width: var(--sidebar-min-width);
+  max-width: var(--sidebar-max-width);
+  width: var(--sidebar-min-width); /* Fixed width to match search box */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
 }
 
 .sidebar-section {
   margin-bottom: 24px;
   flex: 1;
   overflow-y: auto;
+  min-width: 0; /* Allow content to shrink below min-width */
 }
 
 .section-header {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
-  padding: 0 8px;
+  padding: 16px 16px 12px 16px; /* Restore original padding */
+  border-bottom: 1px solid #e9ecef;
+  min-width: 0; /* Allow content to shrink */
 }
 
 .section-title {
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--fluent-neutral-foreground-2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 0;
-  animation: fluent-fade-in var(--fluent-duration-normal) var(--fluent-curve-decelerate-mid) 0.1s both;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.section-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  min-width: 0; /* Allow content to shrink */
+  width: 100%; /* Take full available width */
+}
+
+.upload-btn,
+.refresh-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  color: #6c757d;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.upload-btn:hover:not(:disabled) {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #0056b3;
+  border-color: rgba(0, 123, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.upload-btn:disabled,
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .selection-controls {
-  padding: 0;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 .multi-select-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: var(--fluent-neutral-foreground-2);
   cursor: pointer;
-  transition: all var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
-  padding: 4px 8px;
-  border-radius: var(--fluent-corner-radius-medium);
-  animation: fluent-fade-in var(--fluent-duration-normal) var(--fluent-curve-decelerate-mid) 0.2s both;
+  font-size: 14px;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
-  .multi-select-toggle:hover {
-    color: var(--fluent-primary);
-    background: var(--fluent-primary-lighter);
-    transform: translateX(2px);
-  }
+.multi-select-toggle:hover {
+  color: var(--fluent-primary);
+  background: var(--fluent-primary-lighter);
+  border-color: var(--fluent-primary);
+  transform: translateY(-1px);
+}
 
-  .multi-select-toggle input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
-    accent-color: var(--fluent-primary);
-    transition: transform var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
-  }
+.multi-select-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--fluent-primary);
+  transition: transform var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
+  margin: 0;
+}
 
-  .multi-select-toggle:hover input[type="checkbox"] {
-    transform: scale(1.1);
-  }
+.multi-select-toggle:hover input[type="checkbox"] {
+  transform: scale(1.1);
+}
 
 .toggle-text {
   font-weight: 500;
   user-select: none;
+  white-space: nowrap;
+}
+
+.search-indicator {
+  background: rgba(0, 123, 255, 0.1);
+  border: 1px solid rgba(0, 123, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fluent-fade-in var(--fluent-duration-normal) var(--fluent-curve-decelerate-mid);
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #0056b3;
+}
+
+.search-icon {
+  font-size: 14px;
+}
+
+.search-text {
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    min-width: unset; /* Remove fixed min-width on mobile */
+    width: 100%; /* Full width on mobile */
+    padding: 16px 8px;
+  }
+  
+  .section-header {
+    padding: 12px 12px 8px 12px;
+  }
+  
+  .section-controls {
+    gap: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .selection-controls {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+  
+  .upload-btn,
+  .refresh-btn {
+    padding: 10px;
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    min-width: unset; /* Remove fixed min-width on small mobile */
+    width: 100%; /* Full width on small mobile */
+    padding: 12px 6px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+  }
+  
+  .section-controls {
+    gap: 8px;
+  }
+  
+  .upload-btn,
+  .refresh-btn {
+    min-width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+  
+  .multi-select-toggle {
+    padding: 10px 14px;
+  }
+}
+
+/* Touch-friendly improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .upload-btn,
+  .refresh-btn {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px;
+  }
+  
+  .multi-select-toggle {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+  
+  .sidebar-item {
+    min-height: 56px;
+    padding: 16px 20px;
+  }
+  
+  .action-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+  
+  .item-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .sidebar-item {
@@ -227,3 +414,90 @@
   font-size: 12px;
   animation: fluent-fade-in var(--fluent-duration-normal) var(--fluent-curve-decelerate-mid);
 }
+
+.empty-state {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--fluent-neutral-foreground-3);
+  animation: fluent-fade-in var(--fluent-duration-normal) var(--fluent-curve-decelerate-mid);
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.empty-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.empty-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.file-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-item:hover .file-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.rename-btn:hover:not(:disabled) {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #856404;
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+.remove-btn:hover:not(:disabled) {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #721c24;
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+

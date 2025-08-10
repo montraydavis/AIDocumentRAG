@@ -67,6 +67,101 @@
             }
         }
 
+        [HttpPost("upload")]
+        public async Task<ActionResult<ApiResponse<FileMetadataDto>>> UploadFileAsync(IFormFile file)
+        {
+            if (_currentRepository == null)
+            {
+                return this.BadRequest(new ApiResponse<FileMetadataDto>(
+                    false, null, "System not initialized. Call /initialize first."));
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return this.BadRequest(new ApiResponse<FileMetadataDto>(
+                    false, null, "No file provided"));
+            }
+
+            try
+            {
+                FileMetadata uploadedFile = await this._fileManagementService.UploadFileAsync(file);
+                FileMetadataDto dto = MapToDto(uploadedFile);
+
+                return this.Ok(new ApiResponse<FileMetadataDto>(true, dto));
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex, "Error uploading file: {FileName}", file.FileName);
+                return this.StatusCode(500, new ApiResponse<FileMetadataDto>(
+                    false, null, "Error uploading file", new[] { ex.Message }));
+            }
+        }
+
+        [HttpDelete("files/{fileName}")]
+        public async Task<ActionResult<ApiResponse<bool>>> RemoveFileAsync(string fileName)
+        {
+            if (_currentRepository == null)
+            {
+                return this.BadRequest(new ApiResponse<bool?>(
+                    false, null, "System not initialized. Call /initialize first."));
+            }
+
+            try
+            {
+                bool success = await this._fileManagementService.RemoveFileAsync(fileName);
+
+                return success
+                    ? (ActionResult<ApiResponse<bool>>)this.Ok(new ApiResponse<bool>(true, true, "File removed successfully"))
+                    : (ActionResult<ApiResponse<bool>>)this.BadRequest(new ApiResponse<bool>(
+                        false, false, "Failed to remove file"));
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex, "Error removing file: {FileName}", fileName);
+                return this.StatusCode(500, new ApiResponse<bool>(
+                    false, false, "Error removing file", new[] { ex.Message }));
+            }
+        }
+
+        [HttpPost("files/{fileName}/rename")]
+        public async Task<ActionResult<ApiResponse<FileMetadataDto>>> RenameFileAsync(
+            string fileName, [FromBody] RenameFileRequest request)
+        {
+            if (_currentRepository == null)
+            {
+                return this.BadRequest(new ApiResponse<FileMetadataDto>(
+                    false, null, "System not initialized. Call /initialize first."));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewFileName))
+            {
+                return this.BadRequest(new ApiResponse<FileMetadataDto>(
+                    false, null, "New file name is required"));
+            }
+
+            try
+            {
+                FileMetadata? renamedFile = await this._fileManagementService.RenameFileAsync(fileName, request.NewFileName);
+                
+                if (renamedFile != null)
+                {
+                    FileMetadataDto dto = MapToDto(renamedFile);
+                    return this.Ok(new ApiResponse<FileMetadataDto>(true, dto));
+                }
+                else
+                {
+                    return this.NotFound(new ApiResponse<FileMetadataDto>(
+                        false, null, $"File '{fileName}' not found"));
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex, "Error renaming file: {FileName} to {NewFileName}", fileName, request.NewFileName);
+                return this.StatusCode(500, new ApiResponse<FileMetadataDto>(
+                    false, null, "Error renaming file", new[] { ex.Message }));
+            }
+        }
+
         [HttpGet("files")]
         public async Task<ActionResult<ApiResponse<IEnumerable<FileMetadataDto>>>> GetAllFilesAsync()
         {

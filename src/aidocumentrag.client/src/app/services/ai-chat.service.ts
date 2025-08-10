@@ -46,13 +46,11 @@ export interface ApiResponse<T> {
 })
 export class AIChatService {
   private readonly baseUrl = `${environment.apiUrl}/api/aichat`;
-  private readonly ollamaUrl = 'http://localhost:11434';
 
   constructor(private http: HttpClient) { }
 
   getOllamaModels(): Observable<string[]> {
-    return this.http.get<OllamaModelsResponse>(`${this.ollamaUrl}/api/tags`).pipe(
-      map(response => response.models.map(model => model.name)),
+    return this.http.get<string[]>(`${this.baseUrl}/ollama/models`).pipe(
       catchError(error => {
         console.error('Error fetching Ollama models:', error);
         // Return fallback models if API call fails

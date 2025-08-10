@@ -2,13 +2,29 @@
   <div class="sidebar-section">
     <div class="section-header">
       <div class="section-title">{{ sectionTitle }}</div>
-      <div class="selection-controls" *ngIf="displayFiles.length > 0">
-        <label class="multi-select-toggle">
-          <input type="checkbox"
-                 [checked]="isMultiSelectMode"
-                 (change)="onMultiSelectToggle($event)">
-          <span class="toggle-text">Multi-select</span>
-        </label>
+      <div class="section-controls">
+        <button type="button" 
+                class="upload-btn" 
+                (click)="openUploadModal()"
+                title="Upload documents"
+                [disabled]="isLoading">
+          📤 Upload
+        </button>
+        <button type="button" 
+                class="refresh-btn" 
+                (click)="refreshDocuments()"
+                title="Refresh documents"
+                [disabled]="isLoading">
+          🔄
+        </button>
+        <div class="selection-controls" *ngIf="displayFiles.length > 0">
+          <label class="multi-select-toggle">
+            <input type="checkbox"
+                   [checked]="isMultiSelectMode"
+                   (change)="onMultiSelectToggle($event)">
+            <span class="toggle-text">Multi-select</span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -37,6 +53,24 @@
         <div class="file-info">
           <div class="file-name">{{ file.fileName }}</div>
           <div class="file-meta">{{ formatFileSize(file.fileSize) }}</div>
+        </div>
+
+        <!-- File Actions -->
+        <div class="file-actions" (click)="$event.stopPropagation()">
+          <button type="button" 
+                  class="action-btn rename-btn" 
+                  (click)="renameFile(file)"
+                  title="Rename file"
+                  [disabled]="isUploading">
+            ✏️
+          </button>
+          <button type="button" 
+                  class="action-btn remove-btn" 
+                  (click)="removeFile(file)"
+                  title="Remove file"
+                  [disabled]="isUploading">
+            🗑️
+          </button>
         </div>
       </div>
     </div>
@@ -70,4 +104,11 @@
       </div>
     </div>
   </div>-->
+
+  <!-- File Upload Modal -->
+  <app-file-upload-modal 
+    (fileUploaded)="onFileUploaded($event)"
+    (uploadError)="onUploadError($event)"
+    (closeModal)="onUploadModalClosed()">
+  </app-file-upload-modal>
 </div>

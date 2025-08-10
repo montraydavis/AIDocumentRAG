@@ -1,0 +1,110 @@
+<div class="note-generation-container">
+  <div class="note-header">
+    <h3>Note Generation</h3>
+    <div class="document-info">
+      <strong>Documents:</strong> {{ getDocumentDisplayName() }}
+      <span class="note-type-badge" *ngIf="isMultiDocumentMode">
+        <i class="fas fa-link"></i> Multi-Document Mode
+      </span>
+    </div>
+  </div>
+
+  <div class="note-form">
+    <form [formGroup]="noteForm" (ngSubmit)="generateNote()">
+      <div class="form-group">
+        <label for="category">Category:</label>
+        <select id="category" formControlName="category" class="form-control">
+          <option value="General">General</option>
+          <option value="Research">Research</option>
+          <option value="Analysis">Analysis</option>
+          <option value="Summary">Summary</option>
+          <option value="Action Items">Action Items</option>
+          <option value="Notes">Notes</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Tags (comma-separated):</label>
+        <input type="text" id="tags" formControlName="tags" class="form-control" placeholder="e.g., important, todo, reference">
+      </div>
+
+      <div class="form-group">
+        <label for="instructions">Custom Instructions (optional):</label>
+        <textarea id="instructions" formControlName="instructions" class="form-control" rows="3" 
+                  placeholder="Provide specific instructions for note generation..."></textarea>
+      </div>
+
+      <div class="form-group" *ngIf="isMultiDocumentMode">
+        <label for="crossDocumentInstructions">Cross-Document Analysis Instructions (optional):</label>
+        <textarea id="crossDocumentInstructions" formControlName="crossDocumentInstructions" class="form-control" rows="3"
+                  placeholder="Provide specific instructions for analyzing relationships between documents..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isGenerating || documentNames.length === 0">
+        <i class="fas fa-magic" *ngIf="!isGenerating"></i>
+        <i class="fas fa-spinner fa-spin" *ngIf="isGenerating"></i>
+        {{ isGenerating ? 'Generating...' : (isMultiDocumentMode ? 'Generate Multi-Document Note' : 'Generate Note') }}
+      </button>
+    </form>
+  </div>
+
+  <div class="notes-section">
+    <div class="notes-header">
+      <h4>Generated Notes</h4>
+      <div class="search-box">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Search notes..." class="form-control">
+        <button (click)="searchNotes()" class="btn btn-secondary">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoadingNotes">
+      <i class="fas fa-spinner fa-spin"></i> Loading notes...
+    </div>
+
+    <div class="no-notes" *ngIf="!isLoadingNotes && notes.length === 0">
+      <p>No notes generated yet. Generate your first note above!</p>
+    </div>
+
+    <div class="notes-list" *ngIf="!isLoadingNotes && notes.length > 0">
+      <div class="note-item" *ngFor="let note of notes">
+        <div class="note-header">
+          <h5 class="note-title">{{ note.title }}</h5>
+          <div class="note-meta">
+            <span class="note-type" [class.multi-document]="note.noteType === 'MultiDocument'">
+              <i class="fas fa-file-alt" *ngIf="note.noteType === 'SingleDocument'"></i>
+              <i class="fas fa-link" *ngIf="note.noteType === 'MultiDocument'"></i>
+              {{ getNoteTypeLabel(note) }}
+            </span>
+            <span class="note-date">{{ formatDate(note.createdAt) }}</span>
+            <span class="note-category">{{ note.category }}</span>
+          </div>
+        </div>
+
+        <div class="note-content">
+          <p [innerHTML]="formatNoteContent(note.content)"></p>
+        </div>
+
+        <div class="note-footer">
+          <div class="linked-documents" *ngIf="note.linkedDocuments.length > 0">
+            <strong>Linked Documents:</strong> {{ getLinkedDocumentsDisplay(note) }}
+          </div>
+          
+          <div class="note-tags" *ngIf="note.tags.length > 0">
+            <span *ngFor="let tag of note.tags" [class]="getTagClass(tag)">{{ tag }}</span>
+          </div>
+
+          <div class="note-actions">
+            <button class="btn btn-sm btn-outline-primary" (click)="editNote(note)">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteNote(note.id)">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

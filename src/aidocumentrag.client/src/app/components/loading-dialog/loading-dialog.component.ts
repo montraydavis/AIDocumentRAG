@@ -10,7 +10,7 @@ export interface LoadingState {
 @Component({
   selector: 'app-loading-dialog',
   templateUrl: './loading-dialog.component.html',
-  styleUrl: './loading-dialog.component.css',
+  styleUrls: ['./loading-dialog.component.css'],
   standalone: false
 })
 export class LoadingDialogComponent {

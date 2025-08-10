@@ -5,6 +5,52 @@
   background: #f8f9fa;
 }
 
+/* Tab Navigation Styles */
+.tab-navigation {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid var(--fluent-neutral-stroke);
+  box-shadow: var(--fluent-shadow-2);
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--fluent-neutral-foreground-2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--fluent-duration-fast) var(--fluent-curve-easy-ease);
+  min-width: 100px;
+  justify-content: center;
+}
+
+.tab-button:hover {
+  background: var(--fluent-neutral-background-hover);
+  color: var(--fluent-neutral-foreground);
+}
+
+.tab-button.active {
+  color: var(--fluent-accent-foreground);
+  border-bottom-color: var(--fluent-accent-foreground);
+  background: var(--fluent-accent-background);
+}
+
+.tab-button i {
+  font-size: 16px;
+}
+
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-header {
   background: white;
   border-bottom: 1px solid var(--fluent-neutral-stroke);

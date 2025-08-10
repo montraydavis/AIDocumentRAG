@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { FileManagementService, FileMetadataDto } from '../../services/file-management.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable } from 'rxjs';
+import { FileUploadModalComponent } from '../file-upload-modal/file-upload-modal.component';
 
 export interface DocumentSelection {
   selectedDocuments: FileMetadataDto[];
@@ -10,12 +11,13 @@ export interface DocumentSelection {
 @Component({
   selector: 'app-documents-quick-view',
   templateUrl: './documents-quick-view.component.html',
-  styleUrl: './documents-quick-view.component.css',
+  styleUrls: ['./documents-quick-view.component.css'],
   standalone: false
 })
 export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
   @Output() documentSelected = new EventEmitter<FileMetadataDto>();
   @Output() selectionChanged = new EventEmitter<DocumentSelection>();
+  @ViewChild(FileUploadModalComponent) uploadModal!: FileUploadModalComponent;
 
   files: FileMetadataDto[] = [];
   allFiles: FileMetadataDto[] = []; // Keep reference to all files
@@ -27,6 +29,7 @@ export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
   isMultiSelectMode = false;
   isLoading = true;
   isSearchActive = false;
+  isUploading = false; // Add this property for button state management
 
   private readonly storageKey = 'document-selection-state';
   private destroy$ = new Subject<void>();
@@ -256,5 +259,97 @@ export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  // File management methods
+  openUploadModal(): void {
+    if (this.uploadModal) {
+      this.uploadModal.show();
+    }
+  }
+
+  onFileUploaded(fileMetadata: FileMetadataDto) {
+    console.log('File uploaded successfully:', fileMetadata.fileName);
+    // Refresh the documents list to show the new file
+    this.refreshDocuments();
+  }
+
+  onUploadError(errorMessage: string) {
+    console.error('File upload error:', errorMessage);
+    alert(`Upload failed: ${errorMessage}`);
+  }
+
+  onUploadModalClosed() {
+    console.log('Upload modal closed');
+    // Refresh documents when modal is closed
+    this.refreshDocuments();
+  }
+
+  async removeFile(file: FileMetadataDto): Promise<void> {
+    if (confirm(`Are you sure you want to remove "${file.fileName}"?`)) {
+      try {
+        const response = await this.fileManagementService.removeFile(file.fileName).toPromise();
+        if (response?.success) {
+          // Remove from local arrays
+          this.allFiles = this.allFiles.filter(f => f.fileName !== file.fileName);
+          this.files = this.files.filter(f => f.fileName !== file.fileName);
+          this.updateDisplayFiles();
+          
+          // Clear selection if this file was selected
+          if (this.selectedFile === file) {
+            this.selectedFile = null;
+          }
+          this.selectedDocuments.delete(this.getFileKey(file));
+          
+          this.emitCurrentSelection();
+          console.log(`File "${file.fileName}" removed successfully`);
+        } else {
+          alert(`Failed to remove file: ${response?.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error removing file:', error);
+        alert('Error removing file. Please try again.');
+      }
+    }
+  }
+
+  async renameFile(file: FileMetadataDto): Promise<void> {
+    const newFileName = prompt(`Enter new name for "${file.fileName}":`, file.fileName);
+    
+    if (newFileName && newFileName.trim() && newFileName !== file.fileName) {
+      try {
+        const response = await this.fileManagementService.renameFile(file.fileName, newFileName.trim()).toPromise();
+        if (response?.success && response.data) {
+          // Update local arrays
+          const updatedFile = response.data;
+          this.allFiles = this.allFiles.map(f => f.fileName === file.fileName ? updatedFile : f);
+          this.files = this.files.map(f => f.fileName === file.fileName ? updatedFile : f);
+          this.updateDisplayFiles();
+          
+          // Update selection if this file was selected
+          if (this.selectedFile === file) {
+            this.selectedFile = updatedFile;
+          }
+          
+          this.emitCurrentSelection();
+          console.log(`File renamed from "${file.fileName}" to "${updatedFile.fileName}"`);
+        } else {
+          alert(`Failed to rename file: ${response?.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error renaming file:', error);
+        alert('Error renaming file. Please try again.');
+      }
+    }
+  }
+
+  // Helper method to convert to Promise for async/await usage
+  private async toPromise<T>(observable: Observable<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      observable.subscribe({
+        next: resolve,
+        error: reject
+      });
+    });
   }
 }

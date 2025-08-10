@@ -17,8 +17,22 @@
 
         public AIChatController(IAIChatService aiChatService, ILogger<AIChatController> logger)
         {
-            this._aiChatService = aiChatService;
-            this._logger = logger;
+            _aiChatService = aiChatService;
+            _logger = logger;
+        }
+
+
+        [HttpGet("ollama/models")]
+        public async Task<string[]> GetOllamaModels()
+        {
+            OllamaSharp.OllamaApiClient ollamaClient = new OllamaSharp.OllamaApiClient(new HttpClient()
+            {
+                BaseAddress = new Uri("https://localhost:11434")
+            });
+
+            IEnumerable<OllamaSharp.Models.Model> models = await ollamaClient.ListLocalModelsAsync();
+
+            return models.Select(m => m.Name).ToArray();
         }
 
         [HttpPost("chat")]
@@ -28,19 +42,19 @@
             {
                 if (string.IsNullOrWhiteSpace(request.Prompt))
                 {
-                    return this.BadRequest(new ApiResponse<AIChatResponse>(
+                    return BadRequest(new ApiResponse<AIChatResponse>(
                         false, null, "Prompt cannot be empty"));
                 }
 
-                string response = Markdown.ToHtml(await this._aiChatService.GenerateResponseAsync(request.Prompt, request.Servicer, request.Model));
+                string response = Markdown.ToHtml(await _aiChatService.GenerateResponseAsync(request.Prompt, request.Servicer, request.Model));
                 AIChatResponse chatResponse = new AIChatResponse(response);
 
-                return this.Ok(new ApiResponse<AIChatResponse>(true, chatResponse));
+                return Ok(new ApiResponse<AIChatResponse>(true, chatResponse));
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "Error processing chat request");
-                return this.StatusCode(500, new ApiResponse<AIChatResponse>(
+                _logger.LogError(ex, "Error processing chat request");
+                return StatusCode(500, new ApiResponse<AIChatResponse>(
                     false, null, "Error processing chat request", new[] { ex.Message }));
             }
         }
@@ -52,25 +66,25 @@
             {
                 if (string.IsNullOrWhiteSpace(request.Prompt))
                 {
-                    this.Response.StatusCode = 400;
-                    await this.Response.WriteAsync("Prompt cannot be empty");
+                    Response.StatusCode = 400;
+                    await Response.WriteAsync("Prompt cannot be empty");
                     return;
                 }
 
-                this.Response.ContentType = "text/plain; charset=utf-8";
-                this.Response.Headers.Append("Cache-Control", "no-cache");
-                this.Response.Headers.Append("Connection", "keep-alive");
+                Response.ContentType = "text/plain; charset=utf-8";
+                Response.Headers.Append("Cache-Control", "no-cache");
+                Response.Headers.Append("Connection", "keep-alive");
 
-                await foreach (string chunk in this._aiChatService.GenerateResponseStreamAsync(request.Prompt, request.Servicer, request.Model))
+                await foreach (string chunk in _aiChatService.GenerateResponseStreamAsync(request.Prompt, request.Servicer, request.Model))
                 {
-                    await this.Response.WriteAsync(chunk);
-                    await this.Response.Body.FlushAsync();
+                    await Response.WriteAsync(chunk);
+                    await Response.Body.FlushAsync();
                 }
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "Error processing streaming chat request");
-                await this.Response.WriteAsync($"\nError: {ex.Message}");
+                _logger.LogError(ex, "Error processing streaming chat request");
+                await Response.WriteAsync($"\nError: {ex.Message}");
             }
         }
     }

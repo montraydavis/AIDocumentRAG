@@ -23,7 +23,7 @@ interface DocumentConversation {
 @Component({
   selector: 'app-chat-view',
   templateUrl: './chat-view.component.html',
-  styleUrl: './chat-view.component.css',
+  styleUrls: ['./chat-view.component.css'],
   standalone: false
 })
 export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy {
@@ -46,6 +46,9 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
   documentSummaries: DocumentSummaryDto[] = [];
   summariesLoading = false;
   summariesExpanded = false;
+
+  // Tab-related properties
+  activeTab: 'chat' | 'notes' = 'chat';
 
   private readonly storageKey = 'document-conversations';
   private readonly summaryExpandedKey = 'summaries-expanded-state';
@@ -89,6 +92,14 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
 
   get availableModels(): string[] {
     return this.servicer === 'openai' ? this.openAiModels : this.ollamaModels;
+  }
+
+  get documentNamesArray(): string[] {
+    return this.activeDocuments.map(doc => doc.fileName);
+  }
+
+  get documentTitlesArray(): string[] {
+    return this.activeDocuments.map(doc => doc.fileName);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -150,16 +161,16 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (models) => {
-          this.ollamaModels = models;
+          this.ollamaModels = models || [];  // Ensure we always have an array
           this.isLoadingModels = false;
 
           // Validate model is available for the selected servicer after loading
-          if (this.servicer === 'ollama' && !this.availableModels.includes(this.model)) {
-            this.model = this.availableModels.length > 0 ? this.availableModels[0] : 'phi4';
+          if (this.servicer === 'ollama' && this.ollamaModels.length > 0 && !this.ollamaModels.includes(this.model)) {
+            this.model = this.ollamaModels[0];
             this.saveServicerSettings();
           }
 
-          console.log(`Loaded ${models.length} Ollama models:`, models);
+          console.log(`Loaded ${this.ollamaModels.length} Ollama models:`, this.ollamaModels);
         },
         error: (error) => {
           console.error('Failed to load Ollama models:', error);
@@ -561,5 +572,9 @@ export class ChatViewComponent implements OnChanges, AfterViewChecked, OnDestroy
       .replace(/on\w+="[^"]*"/g, '')
       .replace(/on\w+='[^']*'/g, '')
       .replace(/javascript:/gi, '');
+  }
+
+  setActiveTab(tab: 'chat' | 'notes'): void {
+    this.activeTab = tab;
   }
 }

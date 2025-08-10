@@ -1,0 +1,101 @@
+<div class="modal-overlay" *ngIf="isVisible" (click)="hide()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>📁 Upload Documents</h2>
+      <button class="close-button" (click)="hide()" title="Close">
+        ✕
+      </button>
+    </div>
+
+    <!-- System Status -->
+    <div class="status-section" *ngIf="systemStatus">
+      <div class="status-item">
+        <span class="status-icon">✅</span>
+        <span class="status-text">System Ready</span>
+      </div>
+      <div class="status-item">
+        <span class="status-icon">📊</span>
+        <span class="status-text">{{ systemStatus.fileCount }} documents available</span>
+      </div>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="upload-area" 
+         [class.drag-over]="dragOver"
+         [class.disabled]="!isSystemInitialized"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)"
+         (click)="isSystemInitialized && fileInput.click()">
+      
+      <div class="upload-content">
+        <div class="upload-icon">📤</div>
+        <p class="upload-text">
+          {{ isSystemInitialized ? 'Drop files here or click to select' : 'System initializing...' }}
+        </p>
+        <p class="upload-hint">
+          Supported formats: PDF, DOC, DOCX, TXT, MD, XLS, XLSX, PPT, PPTX
+        </p>
+      </div>
+      
+      <input #fileInput 
+             type="file" 
+             multiple 
+             accept=".pdf,.doc,.docx,.txt,.md,.xls,.xlsx,.ppt,.pptx"
+             (change)="onFileSelected($event)"
+             [disabled]="!isSystemInitialized"
+             style="display: none;">
+    </div>
+
+    <!-- Selected Files -->
+    <div class="selected-files" *ngIf="selectedFiles.length > 0">
+      <h3>Selected Files ({{ selectedFiles.length }})</h3>
+      
+      <div class="file-list">
+        <div class="file-item" *ngFor="let file of selectedFiles; trackBy: trackByFileName">
+          <div class="file-info">
+            <span class="file-icon">{{ getFileIcon(file.name) }}</span>
+            <div class="file-details">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ getFileSize(file) }}</span>
+            </div>
+          </div>
+          
+          <div class="file-actions">
+            <button class="remove-btn" 
+                    (click)="removeFile(file)" 
+                    title="Remove file"
+                    [disabled]="isUploading">
+              🗑️
+            </button>
+          </div>
+          
+          <!-- Upload Progress -->
+          <div class="upload-progress" *ngIf="uploadProgress[file.name] !== undefined">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="uploadProgress[file.name]"></div>
+            </div>
+            <span class="progress-text">{{ uploadProgress[file.name] }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="modal-actions">
+      <button class="btn btn-secondary" 
+              (click)="clearFiles()" 
+              [disabled]="selectedFiles.length === 0 || isUploading">
+        Clear All
+      </button>
+      
+      <button class="btn btn-primary" 
+              (click)="uploadFiles()" 
+              [disabled]="selectedFiles.length === 0 || isUploading || !isSystemInitialized">
+        <span *ngIf="!isUploading">Upload {{ selectedFiles.length }} File{{ selectedFiles.length !== 1 ? 's' : '' }}</span>
+        <span *ngIf="isUploading">Uploading...</span>
+      </button>
+    </div>
+  </div>
+</div>

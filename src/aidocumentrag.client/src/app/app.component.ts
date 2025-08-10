@@ -1,19 +1,34 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FileManagementService, ApiResponse, InitializeResponse, FileMetadataDto, StatusResponse } from './services/file-management.service';
-import { DocumentSelection } from './components/documents-quick-view/documents-quick-view.component';
-import { DocumentsQuickViewComponent } from './components/documents-quick-view/documents-quick-view.component';
 import { DocumentSearchService, SearchState } from './services/document-search.service';
-import { LoadingState } from './components/loading-dialog/loading-dialog.component';
+import { AIChatService } from './services/ai-chat.service';
+import { NoteGenerationService } from './services/note-generation.service';
 import { Subject, interval, switchMap, takeUntil, catchError, of, debounceTime, distinctUntilChanged } from 'rxjs';
+import { FileUploadModalComponent } from './components/file-upload-modal/file-upload-modal.component';
+import { DocumentsQuickViewComponent } from './components/documents-quick-view/documents-quick-view.component';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
+
+export interface DocumentSelection {
+  selectedDocuments: FileMetadataDto[];
+  isMultiSelect: boolean;
+}
+
+export interface LoadingState {
+  isLoading: boolean;
+  message: string;
+  details?: string;
+  progress?: number;
+}
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  standalone: false,
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
+  standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(DocumentsQuickViewComponent) documentsComponent!: DocumentsQuickViewComponent;
+  @ViewChild(FileUploadModalComponent) uploadModal!: FileUploadModalComponent;
 
   title = 'aidocumentrag.client';
   selectedDocument: FileMetadataDto | null = null;
@@ -124,20 +139,25 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private handleStatusResponse(response: ApiResponse<StatusResponse>) {
+    console.log('Handling status response:', response);
     if (response.success && response.data) {
       const status = response.data;
+      console.log('Status data:', status);
 
       if (status.isInitialized && status.fileCount > 0) {
+        console.log('System ready with files, stopping polling');
         this.stopPolling$.next();
         this.updateLoadingState('Documents ready!', `Found ${status.fileCount} documents`);
 
         this.refreshDocuments().then(() => {
           setTimeout(() => {
+            console.log('Setting loading to false after refresh');
             this.loadingState.isLoading = false;
           }, 800);
         });
 
       } else if (status.isInitialized && status.fileCount === 0) {
+        console.log('System initialized but no files found');
         this.updateLoadingState('No documents found', 'The system is ready but no documents were found');
 
         if (!this.initializationAttempted) {
@@ -147,12 +167,14 @@ export class AppComponent implements OnInit, OnDestroy {
           this.stopPolling$.next();
           this.refreshDocuments().then(() => {
             setTimeout(() => {
+              console.log('Setting loading to false after refresh (no files)');
               this.loadingState.isLoading = false;
             }, 2000);
           });
         }
 
       } else {
+        console.log('System not initialized, attempting initialization');
         this.updateLoadingState('System not initialized', 'Attempting to initialize document management...');
 
         if (!this.initializationAttempted) {
@@ -161,6 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     } else {
+      console.log('Status response not successful, attempting initialization');
       if (!this.initializationAttempted) {
         this.initializationAttempted = true;
         this.initializeFileManagement();
@@ -179,6 +202,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private initializeFileManagement() {
+    console.log('Starting file management initialization...');
     this.updateLoadingState('Initializing system...', 'Setting up document management and processing files...');
 
     const initRequest = {
@@ -190,18 +214,22 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: ApiResponse<InitializeResponse>) => {
+          console.log('Initialization response:', response);
           if (response.success && response.data) {
+            console.log('Initialization successful, updating loading state');
             this.updateLoadingState(
               'Initialization successful!',
               `Successfully processed ${response.data.fileCount} documents`
             );
           } else {
+            console.log('Initialization failed, updating loading state');
             this.updateLoadingState(
               'Initialization failed',
               response.message || 'Failed to initialize the system'
             );
 
             setTimeout(() => {
+              console.log('Setting loading to false after initialization failure');
               this.loadingState.isLoading = false;
             }, 3000);
           }
@@ -214,6 +242,7 @@ export class AppComponent implements OnInit, OnDestroy {
           );
 
           setTimeout(() => {
+            console.log('Setting loading to false after initialization error');
             this.loadingState.isLoading = false;
           }, 3000);
         }
@@ -235,6 +264,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private updateLoadingState(message: string, details?: string, progress?: number) {
+    console.log('Updating loading state:', { message, details, progress });
     this.loadingState = {
       isLoading: true,
       message,
@@ -255,5 +285,40 @@ export class AppComponent implements OnInit, OnDestroy {
       isMultiSelect: selection.isMultiSelect,
       documents: selection.selectedDocuments.map(d => d.fileName)
     });
+  }
+
+  onFileUploaded(fileMetadata: FileMetadataDto) {
+    console.log('File uploaded successfully:', fileMetadata.fileName);
+    
+    // Refresh the documents list to show the new file
+    this.refreshDocuments().then(() => {
+      // Update search service with new files
+      if (this.documentsComponent) {
+        const files = this.documentsComponent.getAllFiles();
+        this.searchService.setFiles(files);
+      }
+    });
+  }
+
+  onUploadError(errorMessage: string) {
+    console.error('File upload error:', errorMessage);
+    // You could show a toast notification here
+    alert(`Upload failed: ${errorMessage}`);
+  }
+
+  onUploadModalClosed() {
+    console.log('Upload modal closed');
+    // Refresh documents when modal is closed
+    this.refreshDocuments();
+  }
+
+  openUploadModal() {
+    this.uploadModal.show();
+  }
+
+  // Test method for debugging
+  setLoadingFalse() {
+    console.log('Manually setting loading to false for testing');
+    this.loadingState.isLoading = false;
   }
 }

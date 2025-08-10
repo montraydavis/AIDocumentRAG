@@ -17,14 +17,18 @@
                 title="Clear search">
           ✕
         </button>
-
       </div>
     </div>
-    <!--<div class="top-bar-right">
-      <button class="icon-button">📱</button>
+    <div class="top-bar-right">
+      <button class="icon-button upload-trigger-btn" 
+              (click)="openUploadModal()" 
+              title="Upload Documents">
+        📁
+      </button>
+      <!--<button class="icon-button">📱</button>
       <button class="icon-button">🔔</button>
-      <div class="user-avatar">A</div>
-    </div>-->
+      <div class="user-avatar">A</div>-->
+    </div>
   </div>
 
   <!-- Sidebar -->
@@ -39,4 +43,11 @@
 
   <!-- Loading Dialog Overlay -->
   <app-loading-dialog [loadingState]="loadingState"></app-loading-dialog>
+
+  <!-- File Upload Modal -->
+  <app-file-upload-modal 
+    (fileUploaded)="onFileUploaded($event)"
+    (uploadError)="onUploadError($event)"
+    (closeModal)="onUploadModalClosed()">
+  </app-file-upload-modal>
 </div>
