@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FileManagementService, ApiResponse, InitializeResponse, FileMetadataDto, StatusResponse } from './services/file-management.service';
-import { DocumentSearchService, SearchState } from './services/document-search.service';
 import { AIChatService } from './services/ai-chat.service';
 import { NoteGenerationService } from './services/note-generation.service';
-import { Subject, interval, switchMap, takeUntil, catchError, of, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, interval, switchMap, takeUntil, catchError, of } from 'rxjs';
 import { FileUploadModalComponent } from './components/file-upload-modal/file-upload-modal.component';
 import { DocumentsQuickViewComponent } from './components/documents-quick-view/documents-quick-view.component';
 import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
@@ -33,13 +32,6 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'aidocumentrag.client';
   selectedDocument: FileMetadataDto | null = null;
   documentSelection: DocumentSelection | null = null;
-  searchQuery = '';
-  searchState: SearchState = {
-    query: '',
-    isActive: false,
-    filteredFiles: [],
-    totalResults: 0
-  };
 
   loadingState: LoadingState = {
     isLoading: true,
@@ -49,17 +41,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private stopPolling$ = new Subject<void>();
-  private searchInput$ = new Subject<string>();
   private readonly POLL_INTERVAL = 5000; // 5 seconds
   private initializationAttempted = false;
 
   constructor(
-    private fileManagementService: FileManagementService,
-    private searchService: DocumentSearchService
+    private fileManagementService: FileManagementService
   ) { }
 
   ngOnInit() {
-    this.setupSearch();
     this.checkSystemStatus();
   }
 
@@ -68,46 +57,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.stopPolling$.next();
     this.stopPolling$.complete();
-  }
-
-  private setupSearch() {
-    // Setup search input debouncing
-    this.searchInput$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(query => {
-      this.searchService.setSearchQuery(query);
-    });
-
-    // Subscribe to search state changes
-    this.searchService.searchState$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(state => {
-      this.searchState = state;
-      // Update the documents component with filtered results
-      if (this.documentsComponent) {
-        this.documentsComponent.setFilteredFiles(state.filteredFiles, state.isActive);
-      }
-    });
-  }
-
-  onSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery = input.value;
-    this.searchInput$.next(input.value);
-  }
-
-  onSearchClear() {
-    this.searchQuery = '';
-    this.searchService.clearSearch();
-  }
-
-  onSearchKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      this.onSearchClear();
-      (event.target as HTMLInputElement).blur();
-    }
   }
 
   private checkSystemStatus() {
@@ -253,10 +202,6 @@ export class AppComponent implements OnInit, OnDestroy {
     try {
       if (this.documentsComponent) {
         await this.documentsComponent.refreshDocuments();
-
-        // Update search service with new files
-        const files = this.documentsComponent.getAllFiles();
-        this.searchService.setFiles(files);
       }
     } catch (error) {
       console.error('Error refreshing documents:', error);
@@ -294,8 +239,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.refreshDocuments().then(() => {
       // Update search service with new files
       if (this.documentsComponent) {
-        const files = this.documentsComponent.getAllFiles();
-        this.searchService.setFiles(files);
       }
     });
   }

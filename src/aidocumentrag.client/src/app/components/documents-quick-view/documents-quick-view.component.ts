@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { FileManagementService, FileMetadataDto } from '../../services/file-management.service';
-import { Subject, takeUntil, Observable } from 'rxjs';
+import { DocumentSearchService, SearchState } from '../../services/document-search.service';
+import { Subject, takeUntil, Observable, debounceTime, distinctUntilChanged } from 'rxjs';
 import { FileUploadModalComponent } from '../file-upload-modal/file-upload-modal.component';
 
 export interface DocumentSelection {
@@ -31,14 +32,28 @@ export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
   isSearchActive = false;
   isUploading = false; // Add this property for button state management
 
+  // Search-related properties
+  searchQuery = '';
+  searchState: SearchState = {
+    query: '',
+    isActive: false,
+    filteredFiles: [],
+    totalResults: 0
+  };
+
   private readonly storageKey = 'document-selection-state';
   private destroy$ = new Subject<void>();
+  private searchInput$ = new Subject<string>();
 
-  constructor(private fileManagementService: FileManagementService) { }
+  constructor(
+    private fileManagementService: FileManagementService,
+    private searchService: DocumentSearchService
+  ) { }
 
   ngOnInit() {
     this.loadSelectionState();
     this.loadDocuments();
+    this.setupSearch();
   }
 
   ngOnDestroy() {
@@ -82,6 +97,8 @@ export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
             this.files = [...this.allFiles];
             this.updateDisplayFiles();
             this.emitCurrentSelection();
+            // Update search service with new files
+            this.searchService.setFiles(this.allFiles);
           }
           this.isLoading = false;
         },
@@ -351,5 +368,50 @@ export class DocumentsQuickViewComponent implements OnInit, OnDestroy {
         error: reject
       });
     });
+  }
+
+  private setupSearch() {
+    // Setup search input debouncing
+    this.searchInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(query => {
+      this.searchService.setSearchQuery(query);
+    });
+
+    // Subscribe to search state changes
+    this.searchService.searchState$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(state => {
+      this.searchState = state;
+      this.setFilteredFiles(state.filteredFiles, state.isActive);
+    });
+  }
+
+  onSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery = input.value;
+    this.searchInput$.next(input.value);
+  }
+
+  onSearchKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.onSearchClear();
+    }
+  }
+
+  onSearchClear() {
+    this.searchQuery = '';
+    this.searchService.clearSearch();
+  }
+
+  private performSearch() {
+    this.isSearchActive = this.searchQuery.length > 0;
+    if (this.isSearchActive) {
+      this.searchService.setSearchQuery(this.searchQuery);
+    } else {
+      this.searchService.clearSearch();
+    }
   }
 }

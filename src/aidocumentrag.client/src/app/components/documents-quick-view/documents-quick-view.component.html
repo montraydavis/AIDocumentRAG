@@ -1,21 +1,31 @@
 <div class="sidebar">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="logo">P</div>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-button upload-trigger-btn" 
+              (click)="openUploadModal()" 
+              title="Upload Documents">
+        📁 Upload
+      </button>
+      <!--<button class="icon-button">📱</button>
+      <button class="icon-button">🔔</button>
+      <div class="user-avatar">A</div>-->
+    </div>
+  </div>
+
   <div class="sidebar-section">
     <div class="section-header">
       <div class="section-title">{{ sectionTitle }}</div>
       <div class="section-controls">
         <button type="button" 
-                class="upload-btn" 
-                (click)="openUploadModal()"
-                title="Upload documents"
-                [disabled]="isLoading">
-          📤 Upload
-        </button>
-        <button type="button" 
                 class="refresh-btn" 
                 (click)="refreshDocuments()"
                 title="Refresh documents"
                 [disabled]="isLoading">
-          🔄
+          🔄 Refresh
         </button>
         <div class="selection-controls" *ngIf="displayFiles.length > 0">
           <label class="multi-select-toggle">
@@ -26,6 +36,23 @@
           </label>
         </div>
       </div>
+    </div>
+
+    <!-- Search Container -->
+    <div class="search-container">
+      <input type="text"
+             class="search-box"
+             [(ngModel)]="searchQuery"
+             (input)="onSearchInput($event)"
+             (keydown)="onSearchKeydown($event)"
+             placeholder="Search documents..."
+             [class.active]="searchState.isActive">
+      <button class="search-clear-btn"
+              *ngIf="searchState.isActive"
+              (click)="onSearchClear()"
+              title="Clear search">
+        ✕
+      </button>
     </div>
 
     <!-- Search State Indicator -->
